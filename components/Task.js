@@ -9,8 +9,8 @@ import { useRef, useState } from "react";
 import { Feather } from '@expo/vector-icons';
 import { CheckMark } from "./CheckMark";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-// import bottomSheet from "@gorhom/bottom-sheet/lib/typescript/components/bottomSheet";
 import { ShareTodoModalContent } from "./SharedTodoModalContent";
+import { TodoModalContent } from "./TodoModalContent";
 
 export default function Task({
   id,
@@ -22,7 +22,7 @@ export default function Task({
   sizeText,
 }) {
   const [isDeleteActive, setIsDeleteActive] = useState(false);
-  const BottomSheetModalRef = useRef(null);
+  const bottomSheetModalRef = useRef(null);
   const sharedBottomSheetRef = useRef(null);
   const snapPoints = ["25%", "48%", "75%"];
   const snapPointsShared = ["40%"];
@@ -99,7 +99,14 @@ export default function Task({
           completed={completed}
         />
       </BottomSheetModal>
-
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        index={2}
+        snapPoints={snapPoints}
+        backgroundStyle={{ borderRadius: 50, borderWidth: 4 }}
+      >
+        <TodoModalContent id={id} title={title} />
+      </BottomSheetModal>
     </TouchableOpacity>
   )
 }

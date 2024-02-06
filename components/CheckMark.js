@@ -5,6 +5,9 @@ export function CheckMark({ id, completed, toggleTodo }) {
   async function toggle() {
     const response = await fetch(`http://localhost:8080/todos/${id}`, {
       method: "PUT",
+      headers: {
+        "Content-type": "aplication/json",
+      },
       body: JSON.stringify({
         value: completed ? false : true,
       }),

@@ -6,6 +6,7 @@ import Toast from 'react-native-toast-message';
 import { Feather } from '@expo/vector-icons';
 import { FontSizePanel } from './components/FontSizePanel';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { InputTask } from './components/InputTask';
 
 export default function App() {
   const [todos, setTodos] = useState([]);
@@ -86,6 +87,7 @@ export default function App() {
           contentContainerStyle={styles.contentContainerStyle}
           stickyHeaderIndices={[0]}
         />
+        <InputTask todos={todos} setTodos={setTodos} />
         <Toast />
         <TouchableOpacity onPress={toggleFontSizePanel} style={styles.fontSizeButton}>
           <Feather name={isFontSizePanelOpen ? "chevron-up" : "chevron-down"} size={30} color="#f5f5f5" />
