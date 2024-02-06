@@ -5,7 +5,7 @@ import Task from './components/Task';
 import Toast from 'react-native-toast-message';
 import { Feather } from '@expo/vector-icons';
 import { FontSizePanel } from './components/FontSizePanel';
-
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 export default function App() {
   const [todos, setTodos] = useState([]);
@@ -28,7 +28,7 @@ export default function App() {
 
   async function fetchData() {
     try {
-      const response = await fetch("http://localhost:8080/todos/1");
+      const response = await fetch("http://192.168.0.11:8080/todos/1");
       const data = await response.json();
       setTodos(data);
     } catch (error) {
@@ -50,36 +50,55 @@ export default function App() {
 
   function measureStatusBar() {
     setStatusBarHeight(StatusBar.currentHeight || 0);
+  };
+
+  function clearTodo(id) {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  }
+
+  function toggleTodo(id) {
+    setTodos(
+      todos.map((todo) =>
+      todo.id === id
+        ? { ...todo, completed: todo.completed === 1 ? 0 : 1 }
+        : todo
+      )
+    )
   }
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: statusBarHeight + 20 }]}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      <FlatList
-        data={todos}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <Task {...item} sizeText={sizeText}
-          increaseTextSize={increaseTextSize}
-          decreaseTextSize={decreaseTextSize}
+    <BottomSheetModalProvider>
+      <SafeAreaView style={[styles.container, { paddingTop: statusBarHeight + 20 }]}>
+        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <FlatList
+          data={todos}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <Task
+              {...item} sizeText={sizeText}
+              increaseTextSize={increaseTextSize}
+              decreaseTextSize={decreaseTextSize}
+              clearTodo={clearTodo}
+              toggleTodo={toggleTodo}
+            />
+          )}
+          ListHeaderComponent={() => <Text style={styles.title}>Today</Text>}
+          contentContainerStyle={styles.contentContainerStyle}
+          stickyHeaderIndices={[0]}
+        />
+        <Toast />
+        <TouchableOpacity onPress={toggleFontSizePanel} style={styles.fontSizeButton}>
+          <Feather name={isFontSizePanelOpen ? "chevron-up" : "chevron-down"} size={30} color="#f5f5f5" />
+        </TouchableOpacity>
+
+        {isFontSizePanelOpen && (
+          <FontSizePanel
+            increaseTextSize={increaseTextSize}
+            decreaseTextSize={decreaseTextSize}
           />
         )}
-        ListHeaderComponent={() => <Text style={styles.title}>Today</Text>}
-        contentContainerStyle={styles.contentContainerStyle}
-        stickyHeaderIndices={[0]}
-      />
-      <Toast />
-      <TouchableOpacity onPress={toggleFontSizePanel} style={styles.fontSizeButton}>
-        <Feather name={isFontSizePanelOpen ? "chevron-up" : "chevron-down"} size={30} color="#f5f5f5" />
-      </TouchableOpacity>
-
-      {isFontSizePanelOpen && (
-        <FontSizePanel
-          increaseTextSize={increaseTextSize}
-          decreaseTextSize={decreaseTextSize}
-        />
-      )}
-  </SafeAreaView>
+      </SafeAreaView>
+    </BottomSheetModalProvider>
   );
 }
 

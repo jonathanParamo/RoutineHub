@@ -2,9 +2,21 @@ import { StyleSheet, Pressable, Text } from "react-native";
 import { Feather } from '@expo/vector-icons';
 
 export function CheckMark({ id, completed, toggleTodo }) {
+  async function toggle() {
+    const response = await fetch(`http://localhost:8080/todos/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        value: completed ? false : true,
+      }),
+    });
+    const data = await response.json();
+    toggleTodo(id);
+    console.log(data);
+  }
+
   return (
     <Pressable
-      // onPress={() => toggleTodo(id)} // Maneja el evento de clic
+      onPress={() => toggle(id)}
       style={[
         styles.checkMark,
         {
@@ -22,6 +34,7 @@ export function CheckMark({ id, completed, toggleTodo }) {
     </Pressable>
   )
 }
+
 
 
 const styles = StyleSheet.create({
