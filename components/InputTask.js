@@ -13,7 +13,7 @@ import {
   Platform
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { measure } from "react-native-reanimated";
+import Toast from "react-native-toast-message";
 
 export function InputTask({todos, setTodos}) {
   const [showEmojies, setShowEmojies] = useState(false);
@@ -23,7 +23,7 @@ export function InputTask({todos, setTodos}) {
   useEffect(() => {
     const showSubscription = Keyboard.addListener("keyboardWillShow", () => {
       setShowEmojies(true);
-      AnimatedText.timing(fadeAnim, {
+      Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
         useNativeDriver: true,
@@ -31,48 +31,59 @@ export function InputTask({todos, setTodos}) {
     });
     const hideSudcription = Keyboard.addListener("keyboardWillHide", () => {
       setShowEmojies(false);
-      AnimatedText.timing(fadeAnim, {
+      Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 1000,
         useNativeDriver: true,
       }).start();
     });
     return () => {
-      showSubscription.remove()
+      showSubscription.remove();
       hideSudcription.remove();
     }
   }, []);
 
+  const showToast = (type, text1, text2) => {
+    Toast.show({
+      type,
+      text1,
+      text2,
+    });
+  };
+
   const handleSubmit = async () => {
-    if (messageBody !== "") {
-      const response = await fetch("http://localhost:8080/todos", {
-        headers: {
-          "Content-type": "aplication/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          user_id: 1,
-          title: messageBody,
-        }),
-      });
-      const newTodo = await response.json();
-      setTodos([...todos, {...newTodo, shared_with_id: null }]);
-      Keyboard.dismiss();
-      setMessageBody("");
-    };
+    try {
+      if (messageBody !== "") {
+        const response = await fetch("http://localhost:8080/todos", {
+          headers: {
+            "Content-type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            user_id: 1,
+            title: messageBody,
+          }),
+        });
+
+        if (!response.ok) {
+          console.log(response);
+          showToast("error", "error in the request:", response);
+          return;
+        }
+
+        const newTodo = await response.json();
+        setTodos([...todos, {...newTodo, shared_with_id: null }]);
+        console.log(newTodo,"NEW", response);
+        Keyboard.dismiss();
+        setMessageBody("");
+      };
+    } catch (error) {
+      showToast("error", "error in the request:", error);
+    }
   };
 
   const RenderEmoji = ({ emoji }) => {
     return (
-      // <TouchableHighlight
-      //   activeOpacity={1}
-      //   underlayColor={"transparent"}
-      //   onPress={() => {
-      //     setMessageBody(messageBody + emoji);
-      //   }}
-      // >
-      //   <Text style={styles.emoji}>{emoji}</Text>
-      // </TouchableHighlight>
       <TouchableHighlight
         activeOpacity={1}
         underlayColor={"transparent"}
@@ -80,16 +91,25 @@ export function InputTask({todos, setTodos}) {
           setMessageBody(messageBody + emoji);
         }}
       >
-        <Animated.View
-          style={[
-            styles.emojiContainer,
-            {
-              opacity: fadeAnim,
-            },
-          ]}
-        >
-          <Text style={styles.emoji}>{emoji}</Text>
-        </Animated.View>
+        <Text style={styles.emoji}>{emoji}</Text>
+      {/* // </TouchableHighlight>
+      // <TouchableHighlight
+      //   activeOpacity={1}
+      //   underlayColor={"transparent"}
+      //   onPress={() => {
+      //     setMessageBody(messageBody + emoji);
+      //   }}
+      // >
+      //   <Animated.View
+      //     style={[
+      //       styles.emojiContainer,
+      //       {
+      //         opacity: fadeAnim,
+      //       },
+      //     ]}
+      //   >
+      //     <Text style={styles.emoji}>{emoji}</Text>
+      //   </Animated.View> */}
       </TouchableHighlight>
     );
   };
@@ -111,38 +131,30 @@ export function InputTask({todos, setTodos}) {
             <RenderEmoji emoji="🎥" />
             <RenderEmoji emoji="🏃‍♂️" />
             <RenderEmoji emoji="🏋️‍♂️" />
-            <RenderEmoji emoji="🍽️" />
-            {/* <RenderEmoji emoji="🛌" />
-            <RenderEmoji emoji="🚿" />
-            <RenderEmoji emoji="📚" />
-            <RenderEmoji emoji="🚗" />
-            <RenderEmoji emoji="💤" />
             <RenderEmoji emoji="🎧" />
             <RenderEmoji emoji="☕" />
-            <RenderEmoji emoji="🍵" />
-            <RenderEmoji emoji="📱" />
             <RenderEmoji emoji="🚶‍♀️" />
             <RenderEmoji emoji="🍳" />
             <RenderEmoji emoji="📅" />
             <RenderEmoji emoji="🛒" />
-            <RenderEmoji emoji="📷" />
-            <RenderEmoji emoji="💻" />
-            <RenderEmoji emoji="🚴‍♀️" /> */}
+            <RenderEmoji emoji="🚴‍♀️" />
           </Animated.View>
         )}
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.containerTextInput}
             placeholder="Write a new task"
+            placeholderTextColor= "#f5f5f5"
             scrollEnabled={true}
             onChangeText={setMessageBody}
             defaultValue={messageBody}
+            theme={{ colors: { primary: '#f5f5f5' } }}
           />
           <Pressable onPress={handleSubmit}>
             <AntDesign
-              name="checkcircle"
+              name={messageBody ? "checkcircle" : "closecircle"}
               size={40}
-              color={messageBody ? "#000000" : "#00000050"}
+              color={messageBody ? "#90f1ef" : "#f35b0430"}
               style={{ paddingLeft: 5 }}
             />
           </Pressable>
@@ -174,6 +186,13 @@ const styles = StyleSheet.create({
     padding: 5,
     marginRight: 10,
   },
+  inputContainer: {
+    width: "100%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: "center",
+    color: "#f5f5f5",
+  },
   containerTextInput: {
     width: windowWidth - 100,
     borderWidth: 1,
@@ -183,10 +202,12 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     fontSize: 16,
     paddingVertical: 5,
-    borderColor: "lightgray",
-    backgroundColor: "#ffffff",
+    borderColor: "#f5f5f5",
+    backgroundColor: "#ffffff50",
     marginBottom: 5,
     fontWeight: "600",
+    alignItems: "center",
+    color: "#f5f5f5"
   },
 });
 

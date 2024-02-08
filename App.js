@@ -42,7 +42,7 @@ export default function App() {
   };
 
   const increaseTextSize = () => {
-    setSizeText((prevSize) => (prevSize < 18 ? prevSize + 1 : prevSize));
+    setSizeText((prevSize) => (prevSize < 17 ? prevSize + 1 : prevSize));
   };
 
   const decreaseTextSize = () => {
@@ -107,22 +107,23 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2C3E50",
+    backgroundColor: "#000000",
   },
   contentContainerStyle: {
     padding: 15,
   },
   title: {
-    flex: 1,
     width: "100%",
+    height: 45,
     fontWeight: "800",
     fontSize: 28,
-    marginBottom: 15,
+    marginBottom: 25,
     color: "#f5f5f5",
     textAlign: "center",
     justifyContent: "center",
-    backgroundColor: "#2c3E50",
-    position: "absolute",
+    backgroundColor: "#000000",
+    borderBottomColor: "#f5f5f5",
+    borderWidth: 1,
   },
   fontSizeButton: {
     width: 50,

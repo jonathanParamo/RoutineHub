@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 25,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 21,
   },
   checkMark: {
